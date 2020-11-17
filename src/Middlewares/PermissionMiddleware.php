@@ -4,6 +4,7 @@ namespace Spatie\Permission\Middlewares;
 
 use Closure;
 use Spatie\Permission\Exceptions\UnauthorizedException;
+use Illuminate\Support\Facades\Config;
 
 class PermissionMiddleware
 {
@@ -19,12 +20,14 @@ class PermissionMiddleware
             ? $permission
             : explode('|', $permission);
 
-        foreach ($permissions as $permission) {
-            if ($authGuard->user()->can($permission)) {
-                return $next($request);
-            }
-        }
+        $driverDatabase = Config::get('database.default', 'mysql');
+        Config::set('database.default', Config::get('permission.spatie_database_driver'));
 
-        throw UnauthorizedException::forPermissions($permissions);
+        if (!$authGuard->user()->hasAnyPermission($permissions)) {
+            throw UnauthorizedException::forPermissions($permissions);
+        }
+        Config::set('database.default', $driverDatabase);
+
+        return $next($request);
     }
 }

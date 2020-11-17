@@ -140,4 +140,9 @@ return [
 
         'store' => 'default',
     ],
+
+    /*
+    * Database driver to use to check permission
+    */
+    'spatie_database_driver' => env('DRIVER_SPATIE_PERMISSION', 'mysql'),
 ];
